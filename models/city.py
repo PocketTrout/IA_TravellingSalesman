@@ -15,7 +15,10 @@ class City:
         return hash((self.coords(), self._name))
 
     def __str__(self):
-        return "%s at coordinates (%d, %d)"%(self._name,self._coords.x(),self._coords.y())
+        return "%s at coordinates (%d, %d)" % (self._name, self._coords.x(), self._coords.y())
 
     def coords(self):
         return self._coords
+
+    def name(self):
+        return self._name

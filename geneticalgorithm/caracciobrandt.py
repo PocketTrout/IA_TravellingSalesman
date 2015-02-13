@@ -23,6 +23,8 @@ if __name__ == "__main__":
     soluce.addNextCity(city3)
     soluce.displayPath()
 
+    # Tentative de résolution en utilisant le fichier
+
     # Importation des villes depuis un fichier
     file_import = File("../extern/pb010.txt")
 
@@ -30,5 +32,9 @@ if __name__ == "__main__":
     citiesFromFile = []
     citiesFromFile = file_import.from_file()
 
-    print(citiesFromFile)
-    print(citiesFromFile[0])
+    # Evaluation des distances entre villes pour trouver le meilleur individu (celui qui a la distance la plus
+    # petite entre 2 villes
+    
+    list_length = soluce.length_evaluation(citiesFromFile)
+    meilleur_individu = list_length[0]
+    print(meilleur_individu)
