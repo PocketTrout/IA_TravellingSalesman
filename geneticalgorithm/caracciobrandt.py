@@ -4,6 +4,7 @@ from models.city import City
 from models.solution import Solution
 from models.point import Point
 from models.problem import Problem
+from models.population import Population
 from models.file import File
 
 
@@ -11,16 +12,21 @@ from models.file import File
 def ga_solve(file=None, gui=True, maxtime=0):
     return 0
 
+
+def generateInitialPopulation(problem, size):
+    listSolutions = []
+    for i in range(size):
+        listSolutions.append(Solution(problem))
+
+    return Population(listSolutions)
+
+
 if __name__ == "__main__":
     city1 = City(Point(2, 3), "1")
     city2 = City(Point(3, 4), "2")
     city3 = City(Point(5, 6), "3")
     problem = Problem([city1, city2, city3])
     soluce = Solution(problem)
-    soluce.addNextCity(city1)
-    soluce.addNextCity(city2)
-    soluce.addNextCity(city3)
-    soluce.addNextCity(city3)
     soluce.displayPath()
 
     # Tentative de résolution en utilisant le fichier
@@ -31,10 +37,8 @@ if __name__ == "__main__":
     # Stockage des villes dans une liste
     citiesFromFile = []
     citiesFromFile = file_import.from_file()
+    problem = Problem(citiesFromFile)
+    initialPopulation = generateInitialPopulation(problem, 10)
+    initialPopulation.newGeneration()
 
-    # Evaluation des distances entre villes pour trouver le meilleur individu (celui qui a la distance la plus
-    # petite entre 2 villes
-    
-    list_length = soluce.length_evaluation(citiesFromFile)
-    meilleur_individu = list_length[0]
-    print(meilleur_individu)
+    # Il faut mnt finir la roulette en inversant dans le tableau l'élément séléctionner

@@ -9,10 +9,11 @@ class Problem:
         else:
             self._cities = [].append(cities)
 
-
-    def addCities(self,cities):
+    def addCities(self, cities):
         self._cities.append(cities)
-
 
     def getSize(self):
         return len(self._cities)
+
+    def getCities(self):
+        return self._cities
