@@ -1,6 +1,5 @@
 __author__ = 'kilian.brandtdi'
 
-#TODO write class
 class Point:
 
     def __init__(self, x, y):

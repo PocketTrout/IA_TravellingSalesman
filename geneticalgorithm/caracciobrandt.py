@@ -22,13 +22,6 @@ def generateInitialPopulation(problem, size):
 
 
 if __name__ == "__main__":
-    city1 = City(Point(2, 3), "1")
-    city2 = City(Point(3, 4), "2")
-    city3 = City(Point(5, 6), "3")
-    problem = Problem([city1, city2, city3])
-    soluce = Solution(problem)
-    soluce.displayPath()
-
     # Tentative de résolution en utilisant le fichier
 
     # Importation des villes depuis un fichier
@@ -38,7 +31,10 @@ if __name__ == "__main__":
     citiesFromFile = []
     citiesFromFile = file_import.from_file()
     problem = Problem(citiesFromFile)
-    initialPopulation = generateInitialPopulation(problem, 10)
-    initialPopulation.newGeneration()
+    initialPopulation = generateInitialPopulation(problem, 120)
+    i = 0
+    while i < 30:
+        initialPopulation.newGeneration()
+        i+=1
 
-    # Il faut mnt finir la roulette en inversant dans le tableau l'élément séléctionner
+    print(initialPopulation.getBestSolution().getDistance())

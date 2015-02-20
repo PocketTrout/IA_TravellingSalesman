@@ -1,12 +1,13 @@
 __author__ = 'kilian.brandtdi'
 
-from models.point import Point
-
 class City:
 
     def __init__(self, point, name):
         self._coords = point
         self._name = name
+
+    def clone(self):
+        return City(self._coords, self._name)
 
     def __eq__(self, other):
         return self._coords.x() == other.coords().x() and self._coords.y() == other.coords().y()

@@ -1,22 +1,24 @@
 __author__ = 'kilian.brandtdi'
 
-from models.point import Point
-from models.city import City
-from models.problem import Problem
-
 import random
-
 import math
 
 class Solution:
 
-    def __init__(self, problem):
+    def __init__(self, problem, path = list()):
         self._problem = problem
-        self._path = problem.getCities()
-        random.shuffle(self._path)
+        if len(path) == 0:
+            self._path = problem.getCities()
+            random.shuffle(self._path)
+        else:
+            self._path = path
         self._distance = self.evalDistancePath()
 
-    # Calcul toutes les distances possible entre les villes
+    def clone(self):
+        return Solution(self._problem,self._path)
+
+
+    # Calcule toutes les distances possible entre les villes
     def evalDistancePath(self):
         distance = 0
         if self._problem.getSize() > 0:
@@ -26,11 +28,17 @@ class Solution:
         return distance
 
 
-    def mutate(self,solution):
-        a = 0
+    def mutate(self):
+        #la mutation se charge simplement d'échanger deux villes au hasard
+        r1 = random.randint(0,len(self._path)-1)
+        r2 = random.randint(0,len(self._path)-1)
+        self._path[r1] , self._path[r2] = self._path[r2] , self._path[r1]
 
-    def get_dist_key(self, x):
-        return x[2]
+        self._distance = self.evalDistancePath()
+
+
+    def cross(self,solution):
+        return 1
 
     def addNextCity(self,city):
         if city not in self._path:
