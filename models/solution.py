@@ -14,9 +14,6 @@ class Solution:
             self._path = path
         self._distance = self.evalDistancePath()
 
-    def clone(self):
-        return Solution(self._problem,self._path)
-
 
     # Calcule toutes les distances possible entre les villes
     def evalDistancePath(self):
@@ -29,16 +26,51 @@ class Solution:
 
 
     def mutate(self):
-        #la mutation se charge simplement d'échanger deux villes au hasard
+        #la mutation se charge simplement d'échanger deux villes au hasard qui peuvent être les mêmes (sans effet)
         r1 = random.randint(0,len(self._path)-1)
         r2 = random.randint(0,len(self._path)-1)
         self._path[r1] , self._path[r2] = self._path[r2] , self._path[r1]
 
         self._distance = self.evalDistancePath()
 
-
     def cross(self,solution):
-        return 1
+        size = self.getSize()
+        if size == solution.getSize() and size > 2:
+            startCityIndex = random.randint(2,size-2)
+            firstPartSelf = self._path[0:startCityIndex-1]
+            firstPartOther = solution._path[startCityIndex:size-1]
+            copySelf = self._path[:]
+            copyOther = solution._path[:]
+            secondPartSelf = [x for x in copyOther if x not in firstPartSelf]
+            secondPartOther = [x for x in copySelf if x not in firstPartOther]
+            sizeSecondPartSelf = len(secondPartSelf)
+            sizeSecondPartOther = len(secondPartOther)
+
+            if sizeSecondPartSelf > 0 and sizeSecondPartOther > 0:
+                actualListSize = len(firstPartSelf)
+                for i in range(0,len(secondPartSelf)):
+                    secondPartSelf = sorted(secondPartSelf, key=lambda city: self.distanceBetweenPoints(firstPartSelf[actualListSize - 1].coords(), city.coords()))
+                    firstPartSelf.append(secondPartSelf[0])
+                    del secondPartSelf[0]
+                    actualListSize += 1
+
+                actualListSize = len(firstPartOther)
+                for i in range(0,len(secondPartOther)):
+                    secondPartOther = sorted(secondPartOther, key=lambda city: self.distanceBetweenPoints(firstPartOther[actualListSize - 1].coords(), city.coords()))
+                    firstPartOther.append(secondPartOther[0])
+                    del secondPartOther[0]
+                    actualListSize += 1
+
+            self._path = firstPartSelf
+            solution._path = firstPartOther
+
+    def getDistancesToCitiesList(self,city, others):
+        if len(others) > 0:
+            result = list()
+            for neighbour in others:
+                result.append([self.distanceBetweenPoints(city.coords(),neighbour.coords()),neighbour])
+
+            return sorted(result, key=lambda dist: dist[0])
 
     def addNextCity(self,city):
         if city not in self._path:
@@ -54,5 +86,6 @@ class Solution:
     def getDistance(self):
         return self._distance
 
-    def sortedList(self):
-        return sorted(self._problem, key=lambda sol: self._path[2])
+
+    def getSize(self):
+        return len(self._path)

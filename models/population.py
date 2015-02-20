@@ -27,14 +27,14 @@ class Population:
         #fill with some elits
         newListSolutions.extend(self.selectElitism(sortedList, numberOfElits))
         #fill with roulette selection
-        for i in range(oldGenerationLength - numberOfElits):
-            newListSolutions.append(self.selectRoulette(sortedList))
-
+        newListSolutions.extend([self.selectRoulette(sortedList) for i in range(oldGenerationLength - numberOfElits)])
         #replace solutions list
         self._listSolutions = sorted(newListSolutions, key=lambda sol: sol.getDistance())
         self._distancesSum = self.calculateDistance()
         #mutate some of the new population
         self.proceedMutation()
+        #proceed crossing
+        self.proceedCrossOver()
         #refresh distances sum
         self._distancesSum = self.calculateDistance()
 
@@ -61,6 +61,14 @@ class Population:
         for i in range(int(len(10 * self._listSolutions) / 100),len(self._listSolutions)-1):
                 self._listSolutions[i].mutate()
 
+    def proceedCrossOver(self):
+        minSumary = int(len(10 * self._listSolutions) / 100)
+        maxSumary = len(self._listSolutions)-2
+        for i in range(minSumary,maxSumary):
+                r = random.randint(0,100)
+                if r < 50:
+                    s = random.randint(minSumary,maxSumary)
+                    self._listSolutions[i].cross(self._listSolutions[s])
 
     def getBestSolution(self):
         return sorted(self._listSolutions, key=lambda sol: sol.getDistance())[0]
