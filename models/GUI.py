@@ -4,6 +4,7 @@ import pygame
 from models.city import City
 from models.point import Point
 from models.problem import Problem
+from models.solution import Solution
 from pygame.locals import KEYDOWN, QUIT, MOUSEBUTTONDOWN, K_RETURN, K_ESCAPE
 
 
@@ -17,9 +18,9 @@ def initScreen():
 
     return screen, window, font
 
-def draw(problem):
+def draw(solution):
     screen.fill(0)
-    citylist = problem.getCities()
+    citylist = solution
     pointlist = []
 
     # On affiche chaque ville sur l'écran
@@ -67,9 +68,10 @@ if __name__ == "__main__":
     city2 = City(Point(300, 400), "2")
     city3 = City(Point(333, 50), "3")
     problem = Problem([city1, city2, city3])
+    soluce = Solution(problem)
 
     # Demande d'affichage de toutes les villes sur l'écran
-    draw(problem)
+    draw(soluce._path)
 
     # Refresh de l'écran
     pygame.display.flip()
