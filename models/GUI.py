@@ -1,4 +1,4 @@
-__author__ = 'michaelcaraccio'
+__author__ = "Kilian Brandt and Michael Caraccio"
 
 import pygame
 from models.city import City
@@ -46,7 +46,7 @@ def draw(solution):
      # On créer les lignes entre les villes
     pygame.draw.lines(screen, 0xffffffff, False, [p for p in pointlist], 2)
 
-    text = font.render("Nombre: %i" % problem.getSize(), True, font_color)
+    text = font.render("Nombre: %i" % len(solution), True, font_color)
     textRect = text.get_rect()
     screen.blit(text, textRect)
     pygame.display.flip()

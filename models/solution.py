@@ -1,4 +1,4 @@
-__author__ = 'kilian.brandtdi'
+__author__ = "Kilian Brandt and Michael Caraccio"
 
 import random
 import math

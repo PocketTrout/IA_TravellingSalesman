@@ -1,3 +1,5 @@
+__author__ = "Kilian Brandt and Michael Caraccio"
+
 import csv
 
 from models.city import City
