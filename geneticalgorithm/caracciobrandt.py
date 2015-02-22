@@ -80,33 +80,39 @@ class Population:
         return 0
 
     def newGeneration(self):
+        """ create a new generation of solution from the old one with elitism, mutation and crossover"""
         oldGenerationLength = len(self._listSolutions)
+        # calculate the number of elits solution that we want to keep (33%)
         numberOfElits = int(0.33 * oldGenerationLength)
         sortedList = sorted(self._listSolutions, key=lambda sol: sol.getDistance())
-
         newListSolutions = list()
         # fill with some elits
         newListSolutions.extend(self.selectElitism(sortedList, numberOfElits))
-        #fill with roulette selection
+        # fill with roulette selection
         newListSolutions.extend([self.selectRoulette(sortedList) for i in range(oldGenerationLength - numberOfElits)])
-        #replace solutions list
+        # replace solutions list
         self._listSolutions = sorted(newListSolutions, key=lambda sol: sol.getDistance())
         self._distancesSum = self.calculateDistance()
-        #mutate some of the new population
+        # mutate some of the new population
         self.proceedMutation()
         #proceed crossing
         self.proceedCrossOver()
-        #refresh distances sum
+        # refresh distances sum
         self._distancesSum = self.calculateDistance()
 
 
     def selectRoulette(self, sortedList):
-        # début de la roulette
+        """ Roulette selection """
         random.seed()
+        # get a random number between 0 and the total distance of solution
         r = random.randint(0, int(self._distancesSum))
 
+        # initialize distance counter and index
         distanceCounter = 0
         index = 0
+        # we iterate on the reversed list cause the longest distance is the worst solution
+        # we want the best solution to have a bigger probability to be chosed so we add the longgest distance first
+        # and use an index var to choose the city
         for sol in reversed(sortedList):
             distanceCounter += sol.getDistance()
             if distanceCounter >= r:
@@ -114,14 +120,18 @@ class Population:
             index += 1
 
     def selectElitism(self, sortedList, number):
+        """ return a list that contains a given number of the best solutions """
         return copy.deepcopy(sortedList[0:number])
 
     def proceedMutation(self):
-        # we know list is sorted, we are going to keep the 10% bests and mute the others
+        """ Mutate some chromosome. We know list is sorted,
+            we are going to keep the 10% bests and mutate the others """
         for i in range(int(len(10 * self._listSolutions) / 100), len(self._listSolutions) - 1):
             self._listSolutions[i].mutate()
 
     def proceedCrossOver(self):
+        """ CrossOver some chromosome the population with a fifty percent chance to happen.
+            The 10% of elits won't be affected. """
         minSumary = int(len(10 * self._listSolutions) / 100)
         maxSumary = len(self._listSolutions) - 2
         for i in range(minSumary, maxSumary):
@@ -131,6 +141,7 @@ class Population:
                 self._listSolutions[i].cross(self._listSolutions[s])
 
     def getBestSolution(self):
+        """ return the best solution of the population. """
         return sorted(self._listSolutions, key=lambda sol: sol.getDistance())[0]
 
 #------------------------------------------------------
@@ -165,11 +176,11 @@ class Solution:
             self._path = path
         self._distance = self.evalDistancePath()
 
-
-    # Calcule toutes les distances possible entre les villes
     def evalDistancePath(self):
+        """ Calculate the total path distance (sum of all distances between cities """
         distance = 0
         if self._problem.getSize() > 0:
+            # starts from -1 cause we have to close the loop (distance between the first and the last city
             for i in range(-1, self._problem.getSize() - 1):
                 distance += self.distanceBetweenPoints(self._path[i].coords(), self._path[i + 1].coords())
 
@@ -177,7 +188,7 @@ class Solution:
 
 
     def mutate(self):
-        # la mutation se charge simplement d'échanger deux villes au hasard qui peuvent être les mêmes (sans effet)
+        """ The mutation simply swap two cities and evaluate the new distance """
         r1 = random.randint(0, len(self._path) - 1)
         r2 = random.randint(0, len(self._path) - 1)
         self._path[r1], self._path[r2] = self._path[r2], self._path[r1]
@@ -185,6 +196,7 @@ class Solution:
         self._distance = self.evalDistancePath()
 
     def cross(self, solution):
+        """ Cross two solutions to generate new one """
         size = self.getSize()
         if size == solution.getSize() and size > 2:
             startCityIndex = random.randint(2, size - 2)
@@ -239,35 +251,40 @@ class Solution:
     def getDistance(self):
         return self._distance
 
-
     def getSize(self):
         return len(self._path)
 
 
 #------------------------------------------------------
-# Methodes de résolution
+# Methodes de resolution
 #------------------------------------------------------
 def ga_solve(file=None, gui=True, maxtime=0):
-    # Importation des villes depuis un fichier
+    # Import cities from file
     file_import = File(file)
-    # Stockage des villes dans une liste
+    # put cities in a list
     citiesFromFile = file_import.from_file()
+    # create a problem from the cities
     problem = Problem(citiesFromFile)
     initializationTime = -time.time()
+    # Generate the initial population with a size of 60 from the problem
     initialPopulation = generateInitialPopulation(problem, 60)
     initializationTime += time.time()
-    i = 0
-    lastResults = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
     totalTime = initializationTime
     averageIterationTime = 0
 
+    # ask the best solution for drawing it
     sol = initialPopulation.getBestSolution()
-    # Demande d'affichage de toutes les villes sur l'écran
+    # Ask to draw all the cities on GUI
     draw(sol._path)
 
-    # Refresh de l'écran
+    # Refresh
     pygame.display.flip()
 
+    # start the algorithm
+    i = 0
+    # here is a list that will save the lasts results given to calculate an average and stop looping if no improvement is detected
+    lastResults = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     while i < 50000 and (totalTime + averageIterationTime) <= float(maxtime) * 1.03:  #we add 3% to maxtime because we can pass time by 5% maximum
         startTime = time.time()
         initialPopulation.newGeneration()
@@ -276,16 +293,18 @@ def ga_solve(file=None, gui=True, maxtime=0):
 
         sol = initialPopulation.getBestSolution()
 
-        # Demande d'affichage de toutes les villes sur l'écran
+        # Display the solution (cities) on screen
         draw(sol._path)
 
-        # Refresh de l'écran
+        # Refresh
         pygame.display.flip()
 
+        # save the result of the iteration
         lastResults[i % 10] = result
+        #only if the list is full (at least 10 iteration)
         if i >= 10:
             averageLastResult = calculateAverage(lastResults)
-            if math.fabs(result - averageLastResult) < 1:
+            if math.fabs(result - averageLastResult) < 1: # compare actual result with the last 10 results average
                 break
         i += 1
 
@@ -294,11 +313,12 @@ def ga_solve(file=None, gui=True, maxtime=0):
         averageIterationTime = (averageIterationTime * (i - 1) + lastIterationTime) / i
         totalTime += lastIterationTime
 
-    print("Solution trouvée, distance: %f" % initialPopulation.getBestSolution().getDistance())
-    print("Temps d'exécution: %f s" % totalTime)
+    print("Solution found, distance: %f" % initialPopulation.getBestSolution().getDistance())
+    print("Execution time: %f s" % totalTime)
 
 
 def calculateAverage(list):
+    """ Calculate the average value from a list """
     size = len(list)
     if size > 0:
         sum = 0
@@ -310,6 +330,7 @@ def calculateAverage(list):
 
 
 def generateInitialPopulation(problem, size):
+    """ Create an initial population from a problem with a given size """
     listSolutions = []
     for i in range(size):
         listSolutions.append(Solution(problem))
@@ -318,7 +339,7 @@ def generateInitialPopulation(problem, size):
     return Population(listSolutions)
 
 #------------------------------------------------------
-# Méthodes pour la GUI
+# GUI methods
 #------------------------------------------------------
 def initScreen():
 
@@ -335,27 +356,27 @@ def draw(solution):
     citylist = solution
     pointlist = []
 
-    # On affiche chaque ville sur l'écran
+    # We draw each city on screen
     for city in citylist:
         pos = city.coords()
 
-        # Tableau de points - Pour la création de ligne
+        # Points array for drawing lines between cities
         pointlist.append((pos.x(), pos.y()))
 
         pygame.draw.circle(screen, city_color, (pos.x(), pos.y()), city_radius)
         myfont = pygame.font.Font(None, 20)
 
-        # Création du label contenant le nom de la ville
+        # Create the label with the name of the city
         label = myfont.render(city.name(), 1, text_color, None)
 
-        # Affichage du label
+        # Draw the label
         screen.blit(label, (pos.x() + 10, pos.y() - 6))
 
 
-    # Sans oublier de mettre le premier élément à la dernière position
+    # Don't forget to set the first element as the last too (close the loop)
     pointlist.append((pointlist[0]))
 
-     # On créer les lignes entre les villes
+     # Draw the lines between cities
     pygame.draw.lines(screen, 0xffffffff, False, [p for p in pointlist], 2)
 
     text = font.render("Nombre: %i" % len(solution), True, font_color)
@@ -376,7 +397,7 @@ if __name__ == "__main__":
     import pygame
 
     # ----------------------------------------------
-    # Parser les paramètres en ligne de commande
+    # Parse the command line given parameters
     # ----------------------------------------------
     parser = argparse.ArgumentParser(description='Example with long option names')
 
@@ -389,10 +410,10 @@ if __name__ == "__main__":
     parser.add_argument('--maxtime', action='store', dest='maxtime',
                         help='Desactive l\'interface graphique')
 
-    # Récupération des paramètres
+    # get all parameters
     args = parser.parse_args()
 
-    # Paramètres par défaut
+    # initialize with default values
     parameterMaxtime = 0
     parameterGui = True
 
@@ -405,7 +426,7 @@ if __name__ == "__main__":
     # -------------------------------
     # Initialisation de la GUI
     # -------------------------------
-    # Quelques paramètres
+    # Some defaults parameters
     screen_x = 500
     screen_y = 500
     city_color = [0, 255, 0]  # Green
@@ -413,13 +434,14 @@ if __name__ == "__main__":
     city_radius = 5
     font_color = [255, 255, 255]  # white
 
-    # Initialisation de la fenêtre, window et font
+    # initialize the screen, window and font
     screen, window, font = initScreen()
 
 
-    # Appel de la méthode de résolution
+    # call the solving method
     ga_solve(args.filename.name, parameterGui, parameterMaxtime)
 
+    # loop to handle quit event or keyboard keydown event (interrupt and quit)
     while True:
         event = pygame.event.wait()
         if event.type == pygame.QUIT:
