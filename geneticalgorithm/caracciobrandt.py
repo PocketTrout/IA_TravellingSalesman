@@ -1,4 +1,4 @@
-__author__ = "Kilian Brandt and Michael Caraccio"
+﻿__author__ = "Kilian Brandt and Michael Caraccio"
 
 #------------------------------------------------------
 # CLASS : City
@@ -186,6 +186,9 @@ class Solution:
 
         return distance
 
+    def getPath(self):
+        return self._path
+
 
     def mutate(self):
         """ The mutation simply swap two cities and evaluate the new distance """
@@ -283,31 +286,28 @@ def ga_solve(file=None, gui=True, maxtime=0):
 
     # start the algorithm
     i = 0
+    lastResult = 0
     # here is a list that will save the lasts results given to calculate an average and stop looping if no improvement is detected
-    lastResults = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    while i < 50000 and (totalTime + averageIterationTime) <= float(maxtime) * 1.03:  #we add 3% to maxtime because we can pass time by 5% maximum
+    while i < 100 and (maxtime == 0 or (totalTime + averageIterationTime) <= float(maxtime) * 1.03):  #we add 3% to maxtime because we can pass time by 5% maximum
         startTime = time.time()
         initialPopulation.newGeneration()
 
-        result = initialPopulation.getBestSolution().getDistance()
-
         sol = initialPopulation.getBestSolution()
+        result = sol.getDistance()
 
         # Display the solution (cities) on screen
-        draw(sol._path)
+        draw(sol.getPath())
 
         # Refresh
         pygame.display.flip()
 
         # save the result of the iteration
-        lastResults[i % 10] = result
-        #only if the list is full (at least 10 iteration)
-        if i >= 10:
-            averageLastResult = calculateAverage(lastResults)
-            if math.fabs(result - averageLastResult) < 1: # compare actual result with the last 10 results average
-                break
-        i += 1
+        if result == lastResult:
+            i += 1
+        else:
+            i = 0
 
+        lastResult = result
         endTime = time.time()
         lastIterationTime = endTime - startTime
         averageIterationTime = (averageIterationTime * (i - 1) + lastIterationTime) / i
@@ -379,7 +379,7 @@ def draw(solution):
      # Draw the lines between cities
     pygame.draw.lines(screen, 0xffffffff, False, [p for p in pointlist], 2)
 
-    text = font.render("Nombre: %i" % len(solution), True, font_color)
+    text = font.render("Number: %i" % len(solution), True, font_color)
     textRect = text.get_rect()
     screen.blit(text, textRect)
     pygame.display.flip()
@@ -405,10 +405,10 @@ if __name__ == "__main__":
 
     parser.add_argument('--nogui', action='store_const', dest='gui',
                         const='1',
-                        help='Desactive l\'interface graphique')
+                        help='Disable the GUI')
 
     parser.add_argument('--maxtime', action='store', dest='maxtime',
-                        help='Desactive l\'interface graphique')
+                        help='Set the maximum execution time')
 
     # get all parameters
     args = parser.parse_args()
@@ -417,10 +417,10 @@ if __name__ == "__main__":
     parameterMaxtime = 0
     parameterGui = True
 
-    if args.maxtime != 'None':
+    if args.maxtime != None:
         parameterMaxtime = args.maxtime
 
-    if args.gui != 'None':
+    if args.gui != None:
         parameterGui = False
 
     # -------------------------------
@@ -436,7 +436,6 @@ if __name__ == "__main__":
 
     # initialize the screen, window and font
     screen, window, font = initScreen()
-
 
     # call the solving method
     ga_solve(args.filename.name, parameterGui, parameterMaxtime)
