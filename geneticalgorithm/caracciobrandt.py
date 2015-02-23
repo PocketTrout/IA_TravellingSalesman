@@ -190,8 +190,8 @@ class Solution:
             startCityIndex = random.randint(2, size - 2)
             firstPartSelf = self._path[0:startCityIndex - 1]
             firstPartOther = solution._path[startCityIndex:size - 1]
-            copySelf = self._path[:]
-            copyOther = solution._path[:]
+            copySelf = self._path[:None]
+            copyOther = solution._path[:None]
             secondPartSelf = [x for x in copyOther if x not in firstPartSelf]
             secondPartOther = [x for x in copySelf if x not in firstPartOther]
             sizeSecondPartSelf = len(secondPartSelf)
@@ -254,7 +254,7 @@ def ga_solve(file=None, gui=True, maxtime=0):
     citiesFromFile = file_import.from_file()
     problem = Problem(citiesFromFile)
     initializationTime = -time.time()
-    initialPopulation = generateInitialPopulation(problem, 60)
+    initialPopulation = generateInitialPopulation(problem, 50)
     initializationTime += time.time()
     i = 0
     lastResults = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -283,7 +283,7 @@ def ga_solve(file=None, gui=True, maxtime=0):
         pygame.display.flip()
 
         lastResults[i % 10] = result
-        if i >= 10:
+        if i < 1:
             averageLastResult = calculateAverage(lastResults)
             if math.fabs(result - averageLastResult) < 1:
                 break
