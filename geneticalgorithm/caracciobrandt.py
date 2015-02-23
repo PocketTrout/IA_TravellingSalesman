@@ -126,17 +126,17 @@ class Population:
     def proceedMutation(self):
         """ Mutate some chromosome. We know list is sorted,
             we are going to keep the 10% bests and mutate the others """
-        for i in range(int(len(10 * self._listSolutions) / 100), len(self._listSolutions) - 1):
+        for i in range(1, len(self._listSolutions) - 1):
             self._listSolutions[i].mutate()
 
     def proceedCrossOver(self):
         """ CrossOver some chromosome the population with a fifty percent chance to happen.
             The 10% of elits won't be affected. """
-        minSumary = int(len(10 * self._listSolutions) / 100)
+        minSumary = int(len(5 * self._listSolutions) / 100)
         maxSumary = len(self._listSolutions) - 2
         for i in range(minSumary, maxSumary):
             r = random.randint(0, 100)
-            if r < 50:
+            if r < 80:
                 s = random.randint(minSumary, maxSumary)
                 self._listSolutions[i].cross(self._listSolutions[s])
 
@@ -287,9 +287,10 @@ def ga_solve(file=None, gui=True, maxtime=0):
 
     # start the algorithm
     i = 0
+    sameResultsCounter = 0
     lastResult = 0
     # here is a list that will save the lasts results given to calculate an average and stop looping if no improvement is detected
-    while i < 100 and (maxtime == 0 or (totalTime + averageIterationTime) <= float(maxtime) * 1.03):  #we add 3% to maxtime because we can pass time by 5% maximum
+    while sameResultsCounter < 100 and (maxtime == 0 or ((totalTime + averageIterationTime) <= float(maxtime) * 1.03)):  #we add 3% to maxtime because we can pass time by 5% maximum
         startTime = time.time()
         initialPopulation.newGeneration()
 
@@ -303,10 +304,11 @@ def ga_solve(file=None, gui=True, maxtime=0):
         pygame.display.flip()
 
         if result == lastResult:
-            i += 1
+            sameResultsCounter += 1
         else:
-            i = 0
+            sameResultsCounter = 0
 
+        i += 1
         lastResult = result
         endTime = time.time()
         lastIterationTime = endTime - startTime
@@ -438,7 +440,7 @@ if __name__ == "__main__":
     screen, window, font = initScreen()
 
     # call the solving method
-    ga_solve(args.filename.name, parameterGui, parameterMaxtime)
+    ga_solve(args.filename.name, parameterGui, float(parameterMaxtime))
 
     # loop to handle quit event or keyboard keydown event (interrupt and quit)
     while True:
