@@ -7,7 +7,7 @@ class City:
         self._name = name
 
     def __eq__(self, other):
-        return self._coords.x() == other.coords().x() and self._coords.y() == other.coords().y()
+        return self._coords.x() == other.coords().x() and self._coords.y() == other.coords().y() and self._name == other.name()
 
     def __hash__(self):
         return hash((self.coords(), self._name))

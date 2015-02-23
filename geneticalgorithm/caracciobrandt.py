@@ -62,6 +62,9 @@ class Point:
     def y(self):
         return self._y
 
+
+# global var center
+center = Point(250,250)
 #------------------------------------------------------
 # CLASS : Population
 #------------------------------------------------------
@@ -198,39 +201,48 @@ class Solution:
 
         self._distance = self.evalDistancePath()
 
+
+    def fillPartByCrossing(self, firstPart, secondPart):
+        actualListSize = len(firstPart)
+        for i in range(0, len(secondPart)):
+            # we append all missing element of the solution (cities that aren't yet in the first part)
+            # sorted by a function that consider distance to center and distance to the last city of the first part
+            secondPart = sorted(secondPart,
+                key=lambda city: -self.distanceBetweenPoints(city.coords(), center) + 2*self.distanceBetweenPoints(firstPart[actualListSize - 1].coords(), city.coords()))
+            firstPart.append(secondPart[0])
+            del secondPart[0]
+            actualListSize += 1
+        return firstPart
+
     def cross(self, solution):
         """ Cross two solutions to generate new one """
         size = self.getSize()
+        # cross only if the two solutions have the same size and the size is bigger than 2
         if size == solution.getSize() and size > 2:
+            # cut each solution into two parts that will become the first parts of the two new solutions
             startCityIndex = random.randint(2, size - 2)
             firstPartSelf = self._path[0:startCityIndex - 1]
             firstPartOther = solution._path[startCityIndex:size - 1]
-            copySelf = self._path[:None]
-            copyOther = solution._path[:None]
+            copySelf = self._path[:]
+            copyOther = solution._path[:]
+            # build list with the unique elements that aren't not yet in the first part of future solution
             secondPartSelf = [x for x in copyOther if x not in firstPartSelf]
             secondPartOther = [x for x in copySelf if x not in firstPartOther]
             sizeSecondPartSelf = len(secondPartSelf)
             sizeSecondPartOther = len(secondPartOther)
 
+            # if sizes are bigger tha 0
             if sizeSecondPartSelf > 0 and sizeSecondPartOther > 0:
-                actualListSize = len(firstPartSelf)
-                for i in range(0, len(secondPartSelf)):
-                    secondPartSelf = sorted(secondPartSelf, key=lambda city: self.distanceBetweenPoints(
-                        firstPartSelf[actualListSize - 1].coords(), city.coords()))
-                    firstPartSelf.append(secondPartSelf[0])
-                    del secondPartSelf[0]
-                    actualListSize += 1
+                # call filling algorithm with both parts of each future solutions we built before
+                newPathSelf = self.fillPartByCrossing(firstPartSelf, secondPartSelf)
+                newPathOther = self.fillPartByCrossing(firstPartOther, secondPartOther)
+            else:
+                # else create a totally random new solution
+                newPathSelf = random.shuffle(self._problem.getCities())
+                newPathOther = random.shuffle(solution._problem.getCities())
 
-                actualListSize = len(firstPartOther)
-                for i in range(0, len(secondPartOther)):
-                    secondPartOther = sorted(secondPartOther, key=lambda city: self.distanceBetweenPoints(
-                        firstPartOther[actualListSize - 1].coords(), city.coords()))
-                    firstPartOther.append(secondPartOther[0])
-                    del secondPartOther[0]
-                    actualListSize += 1
-
-            self._path = firstPartSelf
-            solution._path = firstPartOther
+            self._path = newPathSelf
+            solution._path = newPathOther
 
     def getDistancesToCitiesList(self, city, others):
         if len(others) > 0:
