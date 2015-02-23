@@ -1,6 +1,5 @@
 ﻿__author__ = "Kilian Brandt and Michael Caraccio"
 
-
 #------------------------------------------------------
 # CLASS : City
 #------------------------------------------------------
@@ -62,8 +61,6 @@ class Point:
 
     def y(self):
         return self._y
-
-center = Point(250,250)
 
 #------------------------------------------------------
 # CLASS : Population
@@ -201,26 +198,6 @@ class Solution:
 
         self._distance = self.evalDistancePath()
 
-    def fillPartByCrossing(self, firstPart, secondPart):
-        actualListSize = len(firstPart)
-        for i in range(0, len(secondPart)):
-            sortedDistanceToCenter = sorted(secondPart,
-                                            key=lambda city: -self.distanceBetweenPoints(city.coords(), center))
-            sortedDistanceToCity = sorted(secondPart, key=lambda city: self.distanceBetweenPoints(
-                firstPart[actualListSize - 1].coords(), city.coords()))
-            posToCenterInCity = self.getPositionInList(sortedDistanceToCenter[0], sortedDistanceToCity)
-            posToCityInCenter = self.getPositionInList(sortedDistanceToCity[0], sortedDistanceToCenter)
-            if posToCenterInCity != -1 and posToCityInCenter != -1:
-                if posToCenterInCity < posToCityInCenter:
-                    firstPart.append(sortedDistanceToCenter[0])
-                else:
-                    firstPart.append(sortedDistanceToCity[0])
-            else:
-                firstPart.append(sortedDistanceToCity[0])
-            del secondPart[0]
-            actualListSize += 1
-        return firstPart
-
     def cross(self, solution):
         """ Cross two solutions to generate new one """
         size = self.getSize()
@@ -236,19 +213,24 @@ class Solution:
             sizeSecondPartOther = len(secondPartOther)
 
             if sizeSecondPartSelf > 0 and sizeSecondPartOther > 0:
-                newPathSelf = self.fillPartByCrossing(firstPartSelf, secondPartSelf)
-                newPathOther = self.fillPartByCrossing(firstPartOther, secondPartOther)
+                actualListSize = len(firstPartSelf)
+                for i in range(0, len(secondPartSelf)):
+                    secondPartSelf = sorted(secondPartSelf, key=lambda city: self.distanceBetweenPoints(
+                        firstPartSelf[actualListSize - 1].coords(), city.coords()))
+                    firstPartSelf.append(secondPartSelf[0])
+                    del secondPartSelf[0]
+                    actualListSize += 1
 
-            self._path = newPathSelf
-            solution._path = newPathOther
+                actualListSize = len(firstPartOther)
+                for i in range(0, len(secondPartOther)):
+                    secondPartOther = sorted(secondPartOther, key=lambda city: self.distanceBetweenPoints(
+                        firstPartOther[actualListSize - 1].coords(), city.coords()))
+                    firstPartOther.append(secondPartOther[0])
+                    del secondPartOther[0]
+                    actualListSize += 1
 
-    def getPositionInList(self, city, listCity):
-        i = 0
-        for neighbour in listCity:
-            if neighbour. __eq__(city):
-                return i
-            i += 1
-        return -1
+            self._path = firstPartSelf
+            solution._path = firstPartOther
 
     def getDistancesToCitiesList(self, city, others):
         if len(others) > 0:
