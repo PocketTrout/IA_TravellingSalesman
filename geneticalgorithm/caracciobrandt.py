@@ -139,7 +139,7 @@ class Population:
         maxSumary = len(self._listSolutions) - 2
         for i in range(minSumary, maxSumary):
             r = random.randint(0, 100)
-            if r < 80:
+            if r < 70:
                 s = random.randint(minSumary, maxSumary)
                 self._listSolutions[i].cross(self._listSolutions[s])
 
@@ -283,7 +283,7 @@ def ga_solve(file=None, gui=True, maxtime=0):
     initializationTime = -time.time()
 
     # Generate the initial population with a size of 60 from the problem
-    initialPopulation = generateInitialPopulation(problem, 60)
+    initialPopulation = generateInitialPopulation(problem, 200)
     initializationTime += time.time()
 
     totalTime = initializationTime
