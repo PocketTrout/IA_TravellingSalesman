@@ -471,7 +471,7 @@ def draw(item):
         screen.fill(0)
         pointlist = []
         # We draw each city on screen
-        city_color, text_color = [0, 255, 0]  # Green
+        city_color, text_color = [0, 255, 0], [0, 255, 0]  # Green
         city_radius = 5
 
         for city in listCities:
@@ -532,7 +532,7 @@ if __name__ == "__main__":
     collecting = False
 
     if args.maxtime != None:
-        parameterMaxtime = args.maxtime
+        parameterMaxtime = abs(args.maxtime)
 
     if args.gui != None:
         parameterGui = False
