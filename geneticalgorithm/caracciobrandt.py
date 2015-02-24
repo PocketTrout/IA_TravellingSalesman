@@ -81,6 +81,7 @@ class Point:
     def y(self):
         return self._y
 
+# global var center point of screen
 center = Point(int(screen_x/2),int(screen_y/2))
 
 #------------------------------------------------------
@@ -274,6 +275,7 @@ class Solution:
             r1 = random.randint(0, len(self._path) - 1)
             r2 = random.randint(0, len(self._path) - 1)
             self._path[r1], self._path[r2] = self._path[r2], self._path[r1]
+
 
 
     def fillPartByCrossing(self, firstPart, secondPart):
